@@ -15,19 +15,22 @@ public:
     explicit ClientTag(QObject *parent = 0);
 private:
     QString _userName = "";
+    QString _hostName = "";
     QString _ipAddr = "";
     QString _time = "";
     int _port = 45000;
-    QString _uuid;
+    QString _uuid; //unique user id
 public:
+    QString getUserName()const;
+    QString geHosttName() const;
     QString getIp() const;
-    QString getName() const;
     QString getTime() const;
     int getPort() const;
     QString getUuid() const;
 
+    void setUserName(QString name);
+    void setHostName(QString str);
     void setIp(QString str);
-    void setName(QString str);
     void setTime(QString str);
     void setPort(int num);
     void setUuid(QString uuid);
@@ -40,10 +43,14 @@ public:
 
     }
     ClientTag& operator =(const ClientTag & client2){
+
+        this->setUserName(client2.getUserName());
+        this->setHostName(client2.geHosttName());
         this->setIp(client2.getIp());
-        this->setName(client2.getName());
         this->setTime(client2.getTime());
         this->setPort(client2.getPort());
+        this->setUuid(client2.getUuid());
+
         return *this;
     }
 };

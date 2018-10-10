@@ -1,13 +1,9 @@
 //udpserver.cpp
 #include "udpserver.h"
-#include "clientlist.h"
-#include "QNetworkInterface"
-#include "udpclient.h"
 
 UdpServer::UdpServer(ClientList *clientList, QObject *parent) : QObject(parent)
 {
     this->_clientList = clientList;
-
     foreach (QHostAddress address, QNetworkInterface::allAddresses() ){
         if((address.toString().contains(".")) && (address.toString()!="127.0.0.1")){
             QUdpSocket *_serverSocket = new QUdpSocket(this);
@@ -57,25 +53,32 @@ void UdpServer::processPendingDatagrams()
     mesOnlineByteArr = mesOnline.toLocal8Bit();
 
     while(socketServ->hasPendingDatagrams()){
-
             datagram.resize(socketServ->pendingDatagramSize());
             socketServ->readDatagram(datagram.data(),datagram.size(),&senderAddr,&senderPort);
 
             QString dataStr = datagram.data();
+            /*!
+             * Разделяем присланное сообщение на символ начала строки, "длину сообщения" "сообщение","UserName","Uuid" по ";"
+             * сообщение начинается с "@"
+            */
             QStringList StringList = dataStr.split(";");
 
+            //! Делаем проверку на корректность доставки
+            if((StringList[0]!="@")||(StringList[1].toInt()!= (dataStr.length()-(StringList[0]+";"+StringList[1]+";").length()))){
+                qDebug()<<"There was a data loss at the time of sending";
+                break;
+            }
             ClientTag *newClientTag;
             newClientTag = new ClientTag(this);
             QHostInfo HI = QHostInfo::fromName(senderAddr.toString());
 
             newClientTag->setTime(QTime::currentTime().toString());
-            newClientTag->setName(HI.hostName());
+            newClientTag->setUserName(StringList[3]);
+            newClientTag->setHostName(HI.hostName());
             newClientTag->setIp(senderAddr.toString());
             newClientTag->setPort(senderPort);
-            newClientTag->setUuid(StringList[1]);
-
-
-            if (StringList[0] == mesOnlineByteArr){
+            newClientTag->setUuid(StringList[4]);
+            if (StringList[2] == mesOnlineByteArr){
                 _clientList->slotNewClientTag(newClientTag);
             }
     }
