@@ -7,9 +7,8 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDataStream>
-#include <QMap>
 
-#include "clienttag.h"
+#include "peertag.h"
 #include "idgenerator.h"
 
 class UdpClient : public QObject
@@ -21,16 +20,14 @@ public:
     explicit UdpClient(QObject *parent = 0);
     IdGenerator *id;
     QTimer *_timer;
-
-    QList<QUdpSocket*> _udpSocketList;
+    QUdpSocket *_udpSocket;
     QList<QHostAddress> _addressList;
 
-    //QMap<QHostAddress,QUdpSocket*> _mapAddressSocket;
-
-    QString getUserName()const;
-    void setUserName(QString name);
 public slots:
     void sendDatagram();
+    void slotSetUserName(QString name);
+    QString slotGetUserName()const;
+
 };
 
 #endif // UDPCLIENT_H

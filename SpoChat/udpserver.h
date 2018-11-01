@@ -4,7 +4,7 @@
 #include <QUdpSocket>
 #include <QDebug>
 #include "udpclient.h"
-#include "clientlist.h"
+#include "peerlist.h"
 #include <QNetworkInterface>
 #include <QHostInfo>
 #include <QList>
@@ -13,9 +13,9 @@ class UdpServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit UdpServer(ClientList *clientList, QObject *parent=0);
+    explicit UdpServer(PeerList *clientList, QObject *parent=0);
 private:
-    ClientList *_clientList;
+    PeerList *_peerList;
     QList<QUdpSocket*> _udpServSocketList;
 
 public slots:

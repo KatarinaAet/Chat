@@ -1,27 +1,9 @@
 //udpserver.cpp
 #include "udpserver.h"
 
-UdpServer::UdpServer(ClientList *clientList, QObject *parent) : QObject(parent)
+UdpServer::UdpServer(PeerList *clientList, QObject *parent) : QObject(parent)
 {
-    this->_clientList = clientList;
-    foreach (QHostAddress address, QNetworkInterface::allAddresses() ){
-        if((address.toString().contains(".")) && (address.toString()!="127.0.0.1")){
-            QUdpSocket *_serverSocket = new QUdpSocket(this);
-            if (_serverSocket->bind(address,45000,  QUdpSocket :: ShareAddress | QUdpSocket::ReuseAddressHint)){
-                connect(_serverSocket, &QUdpSocket::readyRead, this,&UdpServer::processPendingDatagrams, Qt::QueuedConnection);
-                qDebug()<<address.toString()<<"bound successfully.";
-                /*!
-                 * добавляем новые сокеты в список сокетов сервера для последующего bind
-                 */
-                _udpServSocketList.append(_serverSocket);
-            }
-            else{
-                qDebug() <<"UdpServer: Port in use. Change port!";
-                qDebug()<<address.toString()<<"bound wasn't successfully.";
-                _serverSocket->deleteLater();
-            }
-        }
-    }
+    this->_peerList = clientList;
 
     QUdpSocket *_serverSocket = new QUdpSocket(this);
     if(_serverSocket->bind(45000,QUdpSocket ::ShareAddress)){
@@ -31,7 +13,7 @@ UdpServer::UdpServer(ClientList *clientList, QObject *parent) : QObject(parent)
     }
     else{
         qDebug() << "UdpServer: Port in use. Change port!";
-        qDebug() << "ZERO" << "bound wasn't successfully.";
+        qDebug() << "QHostAddress::Any" << QHostAddress::Any<< "bound wasn't successfully.";
         _serverSocket->deleteLater();
     }
 
@@ -68,19 +50,19 @@ void UdpServer::processPendingDatagrams()
                 qDebug()<<"There was a data loss at the time of sending";
                 break;
             }
-            ClientTag *newClientTag;
-            newClientTag = new ClientTag(this);
+            PeerTag *newPeerTag;
+            newPeerTag = new PeerTag(this);
             QHostInfo HI = QHostInfo::fromName(senderAddr.toString());
 
-            newClientTag->setTime(QTime::currentTime().toString());
-            newClientTag->setUserName(StringList[3]);
-            newClientTag->setHostName(HI.hostName());
-            newClientTag->setIp(senderAddr.toString());
-            newClientTag->setPort(senderPort);
-            newClientTag->setUuid(StringList[4]);
+            newPeerTag->setTime(QTime::currentTime().toString());
+            newPeerTag->setUserName(StringList[3]);
+            newPeerTag->setHostName(HI.hostName());
+            newPeerTag->setIp(senderAddr.toString());
+            newPeerTag->setPort(senderPort);
+            newPeerTag->setUuid(StringList[4]);
             if (StringList[2] == mesOnlineByteArr){
-                _clientList->slotNewClientTag(newClientTag);
+                _peerList->slotNewPeerTag(newPeerTag);
             }
     }
-    QStringList s=_clientList->printClientList();
+    QStringList s=_peerList->printPeerList();
 }

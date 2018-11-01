@@ -1,11 +1,11 @@
 #include "mainwindow.h"
-#include "clientlist.h"
+#include "peerlist.h"
 #include "udpclient.h"
 #include "udpserver.h"
-#include "clientlist.h"
+#include "peerlist.h"
 #include <QApplication>
 #include <QDebug>
-#include "clienttag.h"
+#include "peertag.h"
 
 
 int main(int argc, char *argv[])
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     /*!
      * Объявляем Список клиентов, который будет использоваться для отправки сообщений, и который будет заполняться в Server
      */
-    ClientList _clientList;
+    PeerList _peerList;
     /*!
      * объявляем udpклиента,который будет посылать сообщения от нас
      */
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     /*!
      *объявляем сервер,который будет принимать сообщения о присутствии онлайн от пользователей, в том числе и от нас
     */
-    UdpServer server(&_clientList);
+    UdpServer server(&_peerList);
 
 
     return a.exec();
