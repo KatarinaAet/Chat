@@ -14,19 +14,21 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    clientlist.cpp \
     udpclient.cpp \
     udpserver.cpp \
-    clienttag.cpp \
-    idgenerator.cpp
+    idgenerator.cpp \
+    peerlist.cpp \
+    peertag.cpp \
+    tcpserver.cpp
 
 
 HEADERS  += mainwindow.h \
-    clientlist.h \
     udpclient.h \
     udpserver.h \
-    clienttag.h \
-    idgenerator.h
+    idgenerator.h \
+    peerlist.h \
+    peertag.h \
+    tcpserver.h
 
 FORMS    += mainwindow.ui
 
