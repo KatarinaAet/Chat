@@ -23,7 +23,7 @@ private:
     int _port = 45000;
     QString _uuid; //!unique user id
 
-    QTcpSocket* _socketForTcpClient = new QTcpSocket(this);
+    QTcpSocket* _socketForTcpClient = nullptr;
 public:
     QString getUserName()const;
     QString geHosttName() const;
@@ -31,6 +31,7 @@ public:
     QString getTime() const;
     int getPort() const;
     QString getUuid() const;
+    QTcpSocket *getPeerSocket() const;
 
     void setUserName(QString name);
     void setHostName(QString str);
@@ -38,6 +39,7 @@ public:
     void setTime(QString str);
     void setPort(int num);
     void setUuid(QString uuid);
+    void setPeerSocket(QTcpSocket *socket);
 
     QString printInfo();
 

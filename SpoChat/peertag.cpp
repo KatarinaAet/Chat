@@ -36,8 +36,20 @@ void PeerTag::setTime(QString newTime){
 QString PeerTag::getUuid() const{
     return _uuid;
 }
+
+QTcpSocket *PeerTag::getPeerSocket() const
+{
+    return _socketForTcpClient;
+}
+
+
 void PeerTag::setUuid(QString id){
     _uuid = id;
+}
+
+void PeerTag::setPeerSocket(QTcpSocket *socket)
+{
+    _socketForTcpClient = socket;
 }
 QString PeerTag::printInfo(){
     QString info = "";
