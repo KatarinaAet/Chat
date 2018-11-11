@@ -50,6 +50,7 @@ void PeerList::refreshList(){
         int diff = time.msecsTo(now);
         if (diff > 9*1000){
             list.removeAt(i);
+            emit disconnect();
         }
     }
 }
