@@ -6,6 +6,7 @@
 #include <QTcpSocket>
 #include <QDataStream>
 #include <QTime>
+#include "peerlist.h"
 
 class tcpServer : public QObject
 {
@@ -15,10 +16,12 @@ public:
     QTcpServer *tcpServ;
     QList <QTcpSocket*> sockList;
     quint16 nextBlockSize;
+    PeerList *peerL;
 public slots:
     void slotNewConnection();
     void slotReadMessage();
-    void slotSendToGraphics(QTcpSocket* sock, const QString &str);
+    void disconnnectFromServer();
+    //void slotSendToGraphics(QTcpSocket* sock, const QString &str);
 
 };
 

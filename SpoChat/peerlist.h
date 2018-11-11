@@ -16,7 +16,7 @@ class PeerList : public QObject
     Q_OBJECT
 public:
     PeerList();
-private:
+//private:
     QList <PeerTag*> list;
 public slots:
     void slotNewPeerTag(PeerTag* client);

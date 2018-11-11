@@ -3,10 +3,8 @@
 tcpServer::tcpServer(QObject *parent):QObject (parent)
 {
     tcpServ = new QTcpServer(this);
-    QTcpSocket *socket = new QTcpSocket(this);
     if (tcpServ->listen(QHostAddress::Any,4540)){
-        connect(socket, SIGNAL(newConnection()),this, SLOT(slotNewConnection()));
-        sockList.append(socket);
+        connect(tcpServ, SIGNAL(newConnection()),this, SLOT(slotNewConnection()));
     }
     else{
         qDebug() << "Unable to listen " + tcpServ->errorString();
@@ -17,12 +15,25 @@ tcpServer::tcpServer(QObject *parent):QObject (parent)
 
 void tcpServer::slotNewConnection()
 {
-    QTcpSocket *socket = new QTcpSocket(this);
-    connect (socket, SIGNAL(readyRead()), this, SLOT(slotReadMessage()));
-    connect (socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
-    sockList.append(socket);
-    qDebug() << "tcpServer: Connected!";
+    /*!
+     * получаем сокет нового входящего соединения
+     */
+    QTcpSocket *socket = tcpServ->nextPendingConnection();
+    /*!
+      * Проверяем сокет пира на nullptr
+      */
+    for (auto peer:peerL->list)
+    {
+        if (peer->getPeerSocket() == nullptr)
+        {
+            connect (peer->getPeerSocket(), SIGNAL(readyRead()), this, SLOT(slotReadMessage()));
+            //connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(deleteLater()));
+            connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(disconnnectFromServer()));
+            peer->setPeerSocket(socket);
+            qDebug() << "TcpServer: got new socket";
+        }
 
+    }
 }
 
 void tcpServer::slotReadMessage()
@@ -55,7 +66,22 @@ void tcpServer::slotReadMessage()
 
 }
 
-void tcpServer::slotSendToGraphics(QTcpSocket *sock, const QString &str)
+void tcpServer::disconnnectFromServer()
+{
+    /*!
+      *Удаляем пира при его дисконнекте
+      */
+    QTcpSocket *socket;
+    socket = (QTcpSocket*)sender();
+    for (auto peer:peerL->list){
+        if (peer->getPeerSocket() == socket){
+            peer->getPeerSocket()->close();
+            peerL->list.removeOne(peer);
+        }
+    }
+}
+
+/*void tcpServer::slotSendToGraphics(QTcpSocket *sock, const QString &str)
 {
     QByteArray  arrBlock;
         QDataStream out(&arrBlock, QIODevice::WriteOnly);
@@ -67,4 +93,4 @@ void tcpServer::slotSendToGraphics(QTcpSocket *sock, const QString &str)
 
         sock->write(arrBlock);
 
-}
+}*/
