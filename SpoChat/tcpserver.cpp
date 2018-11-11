@@ -27,8 +27,8 @@ void tcpServer::slotNewConnection()
         if (peer->getPeerSocket() == nullptr)
         {
             connect (peer->getPeerSocket(), SIGNAL(readyRead()), this, SLOT(slotReadMessage()));
-            //connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(deleteLater()));
-            connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(disconnnectFromServer()));
+            connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(deleteLater()));
+            //connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(disconnnectFromServer()));
             peer->setPeerSocket(socket);
             qDebug() << "TcpServer: got new socket";
         }
@@ -66,12 +66,9 @@ void tcpServer::slotReadMessage()
 
 }
 
-void tcpServer::disconnnectFromServer()
-{
-    /*!
-      *Удаляем пира при его дисконнекте
-      */
-    QTcpSocket *socket;
+//void tcpServer::disconnnectFromServer()
+//{
+    /*QTcpSocket *socket;
     socket = (QTcpSocket*)sender();
     for (auto peer:peerL->list){
         if (peer->getPeerSocket() == socket){
@@ -79,7 +76,7 @@ void tcpServer::disconnnectFromServer()
             peerL->list.removeOne(peer);
         }
     }
-}
+}*/
 
 /*void tcpServer::slotSendToGraphics(QTcpSocket *sock, const QString &str)
 {

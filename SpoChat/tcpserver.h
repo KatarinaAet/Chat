@@ -20,7 +20,7 @@ public:
 public slots:
     void slotNewConnection();
     void slotReadMessage();
-    void disconnnectFromServer();
+    //void disconnnectFromServer();
     //void slotSendToGraphics(QTcpSocket* sock, const QString &str);
 
 };
