@@ -15,7 +15,7 @@ class UdpClient : public QObject
 {
     Q_OBJECT
 private:
-    QString _userName = "Name";
+    QString _userName = "Ekaterina";
 public:
     explicit UdpClient(QObject *parent = 0);
     IdGenerator *id;

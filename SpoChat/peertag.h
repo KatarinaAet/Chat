@@ -15,6 +15,7 @@ class PeerTag : public QObject
     Q_OBJECT
 public:
     explicit PeerTag(QObject *parent = 0);
+
 private:
     QString _userName = "";
     QString _hostName = "";
@@ -22,11 +23,12 @@ private:
     QString _time = "";
     int _port = 45000;
     QString _uuid; //!unique user id
-
     QTcpSocket* _socketForTcpClient = nullptr;
+
 public:
+
     QString getUserName()const;
-    QString geHosttName() const;
+    QString getHostName() const;
     QString getIp() const;
     QString getTime() const;
     int getPort() const;
@@ -41,21 +43,21 @@ public:
     void setUuid(QString uuid);
     void setPeerSocket(QTcpSocket *socket);
 
+
     QString printInfo();
 
-    bool operator ==( const PeerTag & client2)
-    {
+    bool operator ==( const PeerTag & client2){
         return ((this->getUuid() == client2.getUuid()));
 
     }
-    PeerTag& operator =(const PeerTag & client2){
-
-        this->setUserName(client2.getUserName());
-        this->setHostName(client2.geHosttName());
-        this->setIp(client2.getIp());
-        this->setTime(client2.getTime());
-        this->setPort(client2.getPort());
-        this->setUuid(client2.getUuid());
+    PeerTag& operator =(const PeerTag & peer2){
+        this->setUserName(peer2.getUserName());
+        this->setHostName(peer2.getHostName());
+        this->setIp(peer2.getIp());
+        this->setTime(peer2.getTime());
+        this->setPort(peer2.getPort());
+        this->setUuid(peer2.getUuid());
+        this->setPeerSocket(peer2.getPeerSocket());
 
         return *this;
     }

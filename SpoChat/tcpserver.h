@@ -5,24 +5,30 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QDataStream>
-#include <QTime>
 #include "peerlist.h"
+#include <QTime>
 
-class tcpServer : public QObject
+class TcpServer : public QObject
 {
     Q_OBJECT
 public:
-    tcpServer(QObject *parent = 0);
-    QTcpServer *tcpServ;
-    QList <QTcpSocket*> sockList;
+    TcpServer(PeerList* peerList,QObject *parent = 0);
+    QTcpServer *tcpServer;
     quint16 nextBlockSize;
-    PeerList *peerL;
+    PeerList *peerList;
+signals:
+    void signalSendToLog(QString messLog);//посылка системных сообщений в графику
+    void signalSendToGraphics(QString mess);//посылка отправляемого сообщения в графику
 public slots:
     void slotNewConnection();
+
+    void slotConnected();
     void slotReadMessage();
-    //void disconnnectFromServer();
-    //void slotSendToGraphics(QTcpSocket* sock, const QString &str);
+    void slotError(QAbstractSocket::SocketError);
+    void slotDisconnected();
+    //void slotSendToGraphics(const QString nickName, const QString groupName, const QString message);
 
 };
 
 #endif // TCPSERVER_H
+
