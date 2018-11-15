@@ -18,7 +18,7 @@ QString PeerTag::getIp() const{
 void PeerTag::setHostName(QString str){
     _hostName = str;
 }
-QString PeerTag::geHosttName() const{
+QString PeerTag::getHostName() const{
     return _hostName;
 }
 int PeerTag::getPort() const{
@@ -36,23 +36,20 @@ void PeerTag::setTime(QString newTime){
 QString PeerTag::getUuid() const{
     return _uuid;
 }
-
+void PeerTag::setUuid(QString id){
+    _uuid = id;
+}
+QString PeerTag::printInfo(){
+    QString info = "";
+    info.append(getIp() + " " + getHostName() + " " + QString::number(getPort()) + " " + getTime() + " "+getUserName());
+    return info;
+}
 QTcpSocket *PeerTag::getPeerSocket() const
 {
     return _socketForTcpClient;
 }
 
-
-void PeerTag::setUuid(QString id){
-    _uuid = id;
-}
-
 void PeerTag::setPeerSocket(QTcpSocket *socket)
 {
     _socketForTcpClient = socket;
-}
-QString PeerTag::printInfo(){
-    QString info = "";
-    info.append(getIp() + " " + geHosttName() + " " + QString::number(getPort()) + " " + getTime());
-    return info;
 }

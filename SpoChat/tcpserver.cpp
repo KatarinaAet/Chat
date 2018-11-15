@@ -1,93 +1,80 @@
 #include "tcpserver.h"
 
-tcpServer::tcpServer(QObject *parent):QObject (parent)
+TcpServer::TcpServer(PeerList* peerList,QObject *parent):QObject (parent)
 {
-    tcpServ = new QTcpServer(this);
-    if (tcpServ->listen(QHostAddress::Any,4540)){
-        connect(tcpServ, SIGNAL(newConnection()),this, SLOT(slotNewConnection()));
+    tcpServer = new QTcpServer(this);
+    this->peerList = peerList;
+
+    if (tcpServer->listen(QHostAddress::Any,4540)){
+        connect(tcpServer, SIGNAL(newConnection()),this, SLOT(slotNewConnection()));
+        qDebug() << "TcpServer: listen";
     }
     else{
-        qDebug() << "Unable to listen " + tcpServ->errorString();
-        tcpServ->close();
+        qDebug() << "TcpServer: Unable to listen " + tcpServer->errorString();
+        tcpServer->close();
         return;
     }
 }
 
-void tcpServer::slotNewConnection()
-{
-    /*!
-     * получаем сокет нового входящего соединения
-     */
-    QTcpSocket *socket = tcpServ->nextPendingConnection();
-    /*!
-      * Проверяем сокет пира на nullptr
-      */
-    for (auto peer:peerL->list)
-    {
-        if (peer->getPeerSocket() == nullptr)
-        {
-            connect (peer->getPeerSocket(), SIGNAL(readyRead()), this, SLOT(slotReadMessage()));
-            connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(deleteLater()));
-            //connect (peer->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(disconnnectFromServer()));
-            peer->setPeerSocket(socket);
-            qDebug() << "TcpServer: got new socket";
-        }
+void TcpServer::slotNewConnection(){
+    // получаем сокет нового входящего соединения
 
+    QTcpSocket *socket = tcpServer->nextPendingConnection();
+    PeerTag* tag = peerList->searchByIp(socket->peerAddress().toString());//получили тег полльзователя, от которого пришло сообщение
+    if (tag->getPeerSocket()==nullptr){
+        qDebug()<<"TcpServer: I HAVE A NEW PEOPLE"<<tag->getUserName();
+        tag->setPeerSocket(socket);
+        connect (tag->getPeerSocket(), SIGNAL(readyRead()), this, SLOT(slotReadMessage()));
+        connect (tag->getPeerSocket(), SIGNAL(disconnected()), this, SLOT(deleteLater()));
+        connect (tag->getPeerSocket(), SIGNAL(connected()), this, SLOT(slotConnected()));
+        connect (tag->getPeerSocket(), SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
     }
 }
 
-void tcpServer::slotReadMessage()
+
+void TcpServer::slotReadMessage()
 {
     QTcpSocket* socket = (QTcpSocket*)sender();
-        QDataStream in(socket);
-        in.setVersion(QDataStream::Qt_4_2);
-        for (;;) {
-            if (!nextBlockSize) {
-                if (socket->bytesAvailable() < sizeof(quint16)) {
-                    break;
-                }
-                in >> nextBlockSize;
-            }
-
-            if (socket->bytesAvailable() < nextBlockSize) {
+    QDataStream in(socket);
+    in.setVersion(QDataStream::Qt_4_2);
+    for (;;) {
+        if (!nextBlockSize) {
+            if (socket->bytesAvailable() < sizeof(quint16)) {
                 break;
             }
-            QTime   time;
-            QString str;
-            in >> time >> str;
-
-            QString strMessage =
-                time.toString() + " " + "Client has sended - " + str;
-
-            nextBlockSize = 0;
-            qDebug() << "TcpServer: Recieved " + str;
-
+            in >> nextBlockSize;
         }
+        if (socket->bytesAvailable() < nextBlockSize) {
+            break;
+        }
+        QString str;
+        in >>  str;
+        nextBlockSize = 0;
+
+        qDebug() << "TcpServer: Recieved " + str;
+        emit signalSendToGraphics(str);
+
+        //in.flush();
+    }
+    //socket->flush();
+
+}
+void TcpServer::slotConnected(){
+    QTcpSocket *socket;
+    socket = (QTcpSocket*)sender();
+    emit signalSendToLog("TcpServer: connection to " + socket->peerAddress().toString());
+    qDebug()<<"tcpServer: connection to user"<<socket->peerName();
 
 }
 
-//void tcpServer::disconnnectFromServer()
-//{
-    /*QTcpSocket *socket;
+void TcpServer::slotDisconnected(){
+    QTcpSocket *socket;
     socket = (QTcpSocket*)sender();
-    for (auto peer:peerL->list){
-        if (peer->getPeerSocket() == socket){
-            peer->getPeerSocket()->close();
-            peerL->list.removeOne(peer);
-        }
-    }
-}*/
+    emit signalSendToLog("_______DISSCONNECT_________" + socket->peerAddress().toString());
+}
 
-/*void tcpServer::slotSendToGraphics(QTcpSocket *sock, const QString &str)
-{
-    QByteArray  arrBlock;
-        QDataStream out(&arrBlock, QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_4_2);
-        out << quint16(0) << QTime::currentTime() << str;
-
-        out.device()->seek(0);
-        out << quint16(arrBlock.size() - sizeof(quint16));
-
-        sock->write(arrBlock);
-
-}*/
+void TcpServer::slotError(QAbstractSocket::SocketError){
+    QTcpSocket *socket;
+    socket = (QTcpSocket*)sender();
+    emit signalSendToLog("_________ERROR____" + socket->peerAddress().toString()+socket->errorString());
+}

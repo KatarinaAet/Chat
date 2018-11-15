@@ -1,4 +1,3 @@
-//clientlist.cpp
 #include "peerlist.h"
 #include "udpclient.h"
 #include <QStringList>
@@ -25,9 +24,11 @@ void PeerList::slotNewPeerTag(PeerTag *clientTag){
             qDebug() << "ClientList:"<<pClient->getIp()<< " No need in append";
             return;
         }
-    }
+     }
     list.append(clientTag);
-    return;
+    qDebug() << "PeerList: append successful " << clientTag->getUserName();
+    emit newPeer(clientTag->getUserName());
+    qDebug() << "SIGNAL ADD IS EMITTED";
 }
 
 QStringList PeerList::printPeerList(){
@@ -40,17 +41,35 @@ QStringList PeerList::printPeerList(){
 }
 
 void PeerList::refreshList(){
-    /*!
-     * проверка клиентов на активность
-     */
+    //! проверка клиентов на активность
     qDebug() << "ClientList: Refreshing";
     for (int i = 0; i < list.size(); i++){
         QTime time = QTime::fromString(list[i]->getTime(), "hh:mm:ss");
         QTime now = QTime:: currentTime();
         int diff = time.msecsTo(now);
         if (diff > 9*1000){
+            qDebug() << "ClientList: Refreshing was succesfull";
+            list[i]->getPeerSocket()->destroyed();
+            emit removePeer(list[i]->getUserName());
+            qDebug() << "SIGNAL removePeer is EMITTED";
             list.removeAt(i);
-            emit disconnect();
         }
     }
 }
+
+PeerTag* PeerList::searchByName(QString name){
+    for(auto pClient:list){
+        if(pClient->getUserName()==name){
+            return pClient;
+        }
+    }
+}
+
+PeerTag* PeerList::searchByIp(QString ip){
+    for(auto pClient:list){
+        if(pClient->getIp()==ip){
+            return pClient;
+        }
+    }
+}
+
