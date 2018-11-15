@@ -18,9 +18,15 @@ public:
     PeerList();
 //private:
     QList <PeerTag*> list;
+signals:
+    void newPeer(const QString &name);
+    void removePeer(const QString &name);
 public slots:
     void slotNewPeerTag(PeerTag* client);
     QStringList printPeerList();
+    PeerTag* searchByName(QString name); // Возвращает пользователя с заданным никнеймом
+    PeerTag* searchByIp(QString ip);
+
     void refreshList();
 };
 
