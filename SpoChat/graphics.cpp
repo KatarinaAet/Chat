@@ -14,9 +14,8 @@ Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
     mainLay = new QHBoxLayout(this);
     mesLay = new QVBoxLayout(this);
     peerLay = new QVBoxLayout(this);
+    buttonLay = new QHBoxLayout(this);
     peerLay->setAlignment(Qt::AlignTop);
-
-    qSplit1 = new QSplitter(Qt::Vertical, this);
     chatField = new QTextEdit(this);
     chatField->setReadOnly(true);
     enterMesField = new QTextEdit(this);
@@ -24,13 +23,25 @@ Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
     buttonSend->setVisible(false);
     buttonClose = new QPushButton("Close", this);
     buttonClose->setVisible(false);
-    qSplit1->setVisible(false);
+    buttonSend->setFixedSize(100,40);
+    buttonClose->setFixedSize(100,40);
+    buttonLay->addWidget(buttonSend, Qt::AlignTop);
+    buttonLay->addWidget(buttonClose, Qt::AlignTop);
     chatField->setVisible(false);
     enterMesField->setVisible(false);
+    mesLay->addWidget(chatField);
+    mesLay->addWidget(enterMesField);
+    mesLay->addLayout(buttonLay);
+    //mesLay->addWidget(buttonSend);
+    //mesLay->addWidget(buttonClose);
+
+    mesLay->setStretch(0,6);
+    mesLay->setStretch(1,3);
     mainLay->addLayout(mesLay);
     mainLay->addLayout(peerLay);
-    mainLay->setStretchFactor(mesLay,5);
-    mainLay->setStretchFactor(peerLay, 5);
+    mainLay->setStretch(0,7);
+    mainLay->setStretch(1,3);
+    setLayout(mainLay);
 
     connect(peerL, SIGNAL(newPeer(QString)), this, SLOT(slotNewPeer(QString)));
     connect(peerL, SIGNAL(removePeer(QString)), this, SLOT(slotRemovePeer(QString)));
@@ -102,31 +113,17 @@ void Graphics::slotRemovePeer(const QString &name)
 
 void Graphics::slotGiveMesField()
 {
-    //qSplit1 = new QSplitter(Qt::Vertical, this);
-    //chatField = new QTextEdit(this);
-    //chatField->setReadOnly(true);
-    //enterMesField = new QTextEdit(this);
-    //buttonSend = new QPushButton("Send", this);
     buttonSend->setVisible(true);
-    qSplit1->setVisible(true);
     chatField->setVisible(true);
     enterMesField->setVisible(true);
     buttonClose->setVisible(true);
-    mesLay->addWidget(qSplit1);
-    qSplit1->addWidget(chatField);
-    qSplit1->addWidget(enterMesField);
-    mesLay->addWidget(buttonSend);
-    mesLay->addWidget(buttonClose);
-    qSplit1->setSizes(QList<int>()<<200<<100);
-    buttonSend->setFixedSize(50,20);
-    buttonClose->setFixedSize(50,20);
+
 }
 
 void Graphics::slotCloseWidgets()
 {
     buttonSend->setVisible(false);
     buttonClose->setVisible(false);
-    qSplit1->setVisible(false);
     chatField->setVisible(false);
     enterMesField->setVisible(false);
 }

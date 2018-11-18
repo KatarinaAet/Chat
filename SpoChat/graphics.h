@@ -32,7 +32,7 @@ private:
     PeerList *peerL;
     QTimer *timer;
     QVBoxLayout *mesLay, *peerLay;
-    QHBoxLayout *mainLay;
+    QHBoxLayout *mainLay, *buttonLay;
     QList<ClickableQLabel*> labelList;
 
 
