@@ -14,6 +14,7 @@ Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
     mainLay = new QHBoxLayout(this);
     mesLay = new QVBoxLayout(this);
     peerLay = new QVBoxLayout(this);
+    peerLay->setAlignment(Qt::AlignTop);
 
     qSplit1 = new QSplitter(Qt::Vertical, this);
     chatField = new QTextEdit(this);
@@ -39,7 +40,13 @@ Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
 }
 
 void Graphics::slotReceiveMessage(QString mes){
-    chatField->setText(mes);
+    qDebug() << "Message recieved";
+    if (!chatField->isVisible()){
+        slotGiveMesField();
+        chatField->setText(mes);
+    }
+    else
+        chatField->setText(mes);
 }
 
 void Graphics::slotLog(QString log){
