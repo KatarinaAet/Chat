@@ -4,43 +4,42 @@
 Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
 {
     this->peerL = listP;
-    timer = new QTimer(this);
+    //timer = new QTimer(this);
         /*!
          * каждые 5с будет отправляться заданное сообщение
          */
-    connect(timer, SIGNAL(timeout()), this, SLOT(sendMes()));
-    timer->start(5*1000);
+    //connect(timer, SIGNAL(timeout()), this, SLOT(sendMes()));
+    //timer->start(5*1000);
 
-    lay = new QVBoxLayout(this);
+    mainLay = new QHBoxLayout(this);
+    mesLay = new QVBoxLayout(this);
+    peerLay = new QVBoxLayout(this);
 
-    qSplit1 = new QSplitter(Qt::Horizontal, this);
-    qSplit2 = new QSplitter(Qt::Vertical, this);
-    qSplit3 = new QSplitter(Qt::Vertical, this);
+    qSplit1 = new QSplitter(Qt::Vertical, this);
     chatField = new QTextEdit(this);
     chatField->setReadOnly(true);
-    clientListField = new QTextEdit(this);
-    //clientListField->setReadOnly(true);
     enterMesField = new QTextEdit(this);
     buttonSend = new QPushButton("Send", this);
-    lay->addWidget(qSplit2);
-    qSplit2->addWidget(qSplit1);
-    qSplit1->addWidget(chatField);
-    qSplit1->addWidget(clientListField);
-    qSplit2->addWidget(qSplit3);
-    qSplit3->addWidget(enterMesField);
-    qSplit1->setSizes(QList<int>()<<200<<100);
-    qSplit2->setSizes(QList<int>()<<300<<100);
-    buttonSend->setFixedSize(50,20);
-    lay->addWidget(buttonSend);
+    buttonSend->setVisible(false);
+    buttonClose = new QPushButton("Close", this);
+    buttonClose->setVisible(false);
+    qSplit1->setVisible(false);
+    chatField->setVisible(false);
+    enterMesField->setVisible(false);
+    mainLay->addLayout(mesLay);
+    mainLay->addLayout(peerLay);
+    mainLay->setStretchFactor(mesLay,5);
+    mainLay->setStretchFactor(peerLay, 5);
 
     connect(peerL, SIGNAL(newPeer(QString)), this, SLOT(slotNewPeer(QString)));
-    //connect(peerL, SIGNAL(removePeer(QString)), this, SLOT(slotRemovePeer(QString)));
+    connect(peerL, SIGNAL(removePeer(QString)), this, SLOT(slotRemovePeer(QString)));
+    connect(buttonSend, SIGNAL(clicked(bool)), this, SLOT(sendMes()));
+    connect(buttonClose, SIGNAL(clicked(bool)), this, SLOT(slotCloseWidgets()));
 
 }
 
 void Graphics::slotReceiveMessage(QString mes){
-
-    qDebug()<<"Graphics:recieve___________"<<mes;
+    chatField->setText(mes);
 }
 
 void Graphics::slotLog(QString log){
@@ -50,29 +49,79 @@ void Graphics::slotLog(QString log){
 
 void Graphics::sendMes(){
 
-
-    emit signalSendToClient("Daniil","VILLYWONKA","from Ekaterina");
+    QString str = enterMesField->toPlainText();
+    if (str.isEmpty())
+        return;
+    else{
+    QStringList outputMessage = str.split("@");
+    qDebug() << outputMessage[0]<< outputMessage[1] << outputMessage[2];
+    emit signalSendToClient(outputMessage[0],outputMessage[1],outputMessage[2]);
+    }
 }
 
 void Graphics::slotNewPeer(const QString &name)
 {
-    //QTextCursor curs = clientListField->textCursor();
-    //curs.movePosition(QTextCursor::Start);
-    //curs.insertText("aaa");
 
-    QLabel *label= new QLabel(name,this);
-    labelList.append(label);
-    lay->addWidget(label);
-    label->show();
-    //QPushButton *label = new QPushButton(name);
-    //lay->addWidget(label);
-    //label->show();
-    //label->setText(name);
-    //qSplit1->addWidget(label);
-    qDebug() << "I'M IN SLOT";
-    qDebug() << "Graphics: " << name;
-    //label->show();
+    if (name.isEmpty())
+        return;
+    else{
+        ClickableQLabel *label= new ClickableQLabel(name,this);
+        labelList.append(label);
+        peerLay->addWidget(label);
+        connect(label, SIGNAL(clicked()), this, SLOT(slotGiveMesField()));
+        qDebug() << "I'M IN SLOT";
+        qDebug() << "Graphics: " << name;
+    }
 
+
+}
+
+void Graphics::slotRemovePeer(const QString &name)
+{
+    qDebug() << "IN SLOT REMOVE " << name;
+    if (!mainLay->isEmpty()){
+        for (auto item:labelList){
+            if (item->text() == name){
+                qDebug() << "I FOUND IT";
+                delete item;
+                labelList.removeOne(item);
+                slotCloseWidgets();
+                return;
+            }
+        }
+    }
+
+}
+
+void Graphics::slotGiveMesField()
+{
+    //qSplit1 = new QSplitter(Qt::Vertical, this);
+    //chatField = new QTextEdit(this);
+    //chatField->setReadOnly(true);
+    //enterMesField = new QTextEdit(this);
+    //buttonSend = new QPushButton("Send", this);
+    buttonSend->setVisible(true);
+    qSplit1->setVisible(true);
+    chatField->setVisible(true);
+    enterMesField->setVisible(true);
+    buttonClose->setVisible(true);
+    mesLay->addWidget(qSplit1);
+    qSplit1->addWidget(chatField);
+    qSplit1->addWidget(enterMesField);
+    mesLay->addWidget(buttonSend);
+    mesLay->addWidget(buttonClose);
+    qSplit1->setSizes(QList<int>()<<200<<100);
+    buttonSend->setFixedSize(50,20);
+    buttonClose->setFixedSize(50,20);
+}
+
+void Graphics::slotCloseWidgets()
+{
+    buttonSend->setVisible(false);
+    buttonClose->setVisible(false);
+    qSplit1->setVisible(false);
+    chatField->setVisible(false);
+    enterMesField->setVisible(false);
 }
 
 

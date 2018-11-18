@@ -34,7 +34,7 @@ void TcpClient::slotSendTo(QString nickName,QString groupName,QString messageTo)
     {
         tag->getPeerSocket()->write(output.toUtf8());
         emit signalSendToGraphics(output);
-        tag->getPeerSocket()->flush();
+        //tag->getPeerSocket()->flush();
     };
 
     if (QAbstractSocket::ConnectedState==tag->getPeerSocket()->state())

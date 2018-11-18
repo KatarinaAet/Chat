@@ -27,8 +27,12 @@ void PeerList::slotNewPeerTag(PeerTag *clientTag){
      }
     list.append(clientTag);
     qDebug() << "PeerList: append successful " << clientTag->getUserName();
-    emit newPeer(clientTag->getUserName());
-    qDebug() << "SIGNAL ADD IS EMITTED";
+    if (!(clientTag->getUserName().isEmpty())){
+        emit newPeer(clientTag->getUserName());
+        qDebug() << "SIGNAL ADD IS EMITTED";
+    }
+    else
+        return;
 }
 
 QStringList PeerList::printPeerList(){
@@ -49,9 +53,10 @@ void PeerList::refreshList(){
         int diff = time.msecsTo(now);
         if (diff > 9*1000){
             qDebug() << "ClientList: Refreshing was succesfull";
-            list[i]->getPeerSocket()->destroyed();
+            //list[i]->getPeerSocket()->destroyed();
             emit removePeer(list[i]->getUserName());
             qDebug() << "SIGNAL removePeer is EMITTED";
+            qDebug() << list[i]->getUserName();
             list.removeAt(i);
         }
     }

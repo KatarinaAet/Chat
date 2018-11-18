@@ -16,25 +16,24 @@
 #include "peerlist.h"
 #include <QTextCursor>
 #include <QLabel>
+#include "clickableqlabel.h"
 
 class Graphics : public QWidget
 {
     Q_OBJECT
 public:
     explicit Graphics(PeerList *listP, QWidget *parent = 0);
+
 private:
     QTextEdit *chatField;
-    QTextEdit *clientListField;
     QTextEdit *enterMesField;
-    QSplitter *qSplit1, *qSplit2, *qSplit3;
-    QPushButton *buttonSend;
+    QSplitter *qSplit1;
+    QPushButton *buttonSend, *buttonClose;
     PeerList *peerL;
     QTimer *timer;
-    QVBoxLayout *leftLay, *rightLay, *lay;
+    QVBoxLayout *mesLay, *peerLay;
     QHBoxLayout *mainLay;
-
-    QVBoxLayout *left, *right, *mainl;
-    QList<QLabel*> labelList;
+    QList<ClickableQLabel*> labelList;
 
 
 signals:
@@ -45,8 +44,9 @@ public slots:
 
     void sendMes();
     void slotNewPeer(const QString &name);
-    //void textChange(const QString &text);
-    //void slotRemovePeer(const QString &name);
+    void slotRemovePeer(const QString &name);
+    void slotGiveMesField();
+    void slotCloseWidgets();
 };
 
 #endif // GRAPHICS_H

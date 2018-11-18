@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
 
 
     //QObject::connect(serverTcp,SIGNAL())
-
     graphics->show();
     return a.exec();
 }
