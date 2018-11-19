@@ -52,12 +52,13 @@ Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
 
 void Graphics::slotReceiveMessage(QString mes){
     qDebug() << "Message recieved";
+    QStringList outMes = mes.split("@");
     if (!chatField->isVisible()){
         slotGiveMesField();
-        chatField->setText(mes);
+        chatField->append(outMes[0]+":"+outMes[2]);
     }
     else
-        chatField->setText(mes);
+        chatField->append(outMes[0]+":"+outMes[2]);
 }
 
 void Graphics::slotLog(QString log){
@@ -72,7 +73,7 @@ void Graphics::sendMes(){
         return;
     else{
     QStringList outputMessage = str.split("@");
-    qDebug() << outputMessage[0]<< outputMessage[1] << outputMessage[2];
+    chatField->append(outputMessage[0]+":"+outputMessage[2]);
     emit signalSendToClient(outputMessage[0],outputMessage[1],outputMessage[2]);
     }
 }
