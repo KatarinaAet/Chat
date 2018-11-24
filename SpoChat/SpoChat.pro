@@ -18,7 +18,6 @@ SOURCES += main.cpp\
     idgenerator.cpp \
     peerlist.cpp \
     peertag.cpp \
-    tcpserver.cpp \
     tcpclient.cpp \
     graphics.cpp \
     clickableqlabel.cpp
@@ -30,7 +29,6 @@ HEADERS  += mainwindow.h \
     idgenerator.h \
     peerlist.h \
     peertag.h \
-    tcpserver.h \
     tcpclient.h \
     graphics.h \
     clickableqlabel.h

@@ -17,6 +17,8 @@ public:
 private:
     PeerList *_peerList;
     QList<QUdpSocket*> _udpServSocketList;
+    QUdpSocket * socketUdpServer;
+    QStringList correctMessage;
 
 public slots:
     void processPendingDatagrams();

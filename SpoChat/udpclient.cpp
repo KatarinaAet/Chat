@@ -34,8 +34,6 @@ void UdpClient::sendDatagram(){
      * Описание метода посылки датаграммы
      * Здесь формируется посылаемй пакет
      */
-    //QUdpSocket *socket = new QUdpSocket(this);
-
     QByteArray data = "Here;";
     data.append(slotGetUserName()+";");
     data.append(id->genId());
@@ -44,7 +42,7 @@ void UdpClient::sendDatagram(){
 
     for (int i = 0; i<_addressList.length(); i++){
         _udpSocket->writeDatagram(data,_addressList[i] , 45000);
-        qDebug() << "UpdClient: " <<_udpSocket->localAddress().toString()<< QTime::currentTime().toString() << "my datagram has been sent to this address:" << _addressList[i];
+        //qDebug() << "UpdClient: " <<_udpSocket->localAddress().toString()<< QTime::currentTime().toString() << "my datagram has been sent to this address:" << _addressList[i];
     }
 }
 

@@ -1,16 +1,43 @@
 #include <tcpclient.h>
+#include <QTimer>
 
 TcpClient::TcpClient(PeerList *listOfPeer, QObject *parent) : QObject(parent){
     this->peerList= listOfPeer;
+    this->tcpServer = new QTcpServer(this);
+
+    if (tcpServer->listen(QHostAddress::Any,4540)){
+        connect(tcpServer, SIGNAL(newConnection()),this, SLOT(slotNewConnection()));
+        qDebug() << "TcpServer: listen";
+    }
+    else{
+        qDebug() << "TcpServer: Unable to listen " + tcpServer->errorString();
+        tcpServer->close();
+        return;
+    }
+
+}
+
+void TcpClient::slotNewConnection(){
+    // получаем сокет нового входящего соединения
+
+    QTcpSocket *socket = tcpServer->nextPendingConnection();
+    PeerTag* tag = peerList->searchByIp(socket->peerAddress().toString());//получили тег полльзователя, от которого пришло сообщение
+    if (tag->getPeerSocket()==nullptr){
+        qDebug()<<"SLOT NEW CONNECTION FROM SOCKETSERVER FOR"<<tag->getUserName();
+        tag->setPeerSocket(socket);
+        connect (socket, SIGNAL(readyRead()), this, SLOT(slotReadMessage()));
+        connect (socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
+        connect (socket, SIGNAL(connected()), this, SLOT(slotConnected()));
+        connect (socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotError(QAbstractSocket::SocketError)));
+    }
 }
 
 void TcpClient::slotSendTo(QString nickName,QString groupName,QString messageTo){
-    PeerTag* tag = peerList->searchByName(nickName);
+    PeerTag* tag = peerList->searchByName(groupName);
     //Если подключения по сокету пользователя ещё не было
     //tag->getPeerSocket()->isValid()
     if (tag->getPeerSocket()==nullptr){
-        qDebug()<<"TcpClient: I FIND YOU"<<tag->printInfo();
-
+        qDebug()<<"TcpClient: i find "<<tag->getUserName()<<"for conncetion";
 
         QTcpSocket* socket = new QTcpSocket(this);
         tag->setPeerSocket(socket);
@@ -22,13 +49,8 @@ void TcpClient::slotSendTo(QString nickName,QString groupName,QString messageTo)
     }
 
     //формирует сообщение
-//    QByteArray  arrBlock;
-//    QDataStream out(&arrBlock, QIODevice::WriteOnly);
     QString output;
-    output = nickName+"@"+groupName+"@"+messageTo;
-//    out << quint16(0) << output;
-//    out.device()->seek(0);
-//    out << quint16(arrBlock.size() - sizeof(quint16));
+    output = nickName+"@"+nickName+"@"+messageTo;
 
     auto sendCallback=[tag,this,output]()
     {
@@ -45,30 +67,25 @@ void TcpClient::slotSendTo(QString nickName,QString groupName,QString messageTo)
 }
 
 void TcpClient::slotConnected(){
-    QTcpSocket *socket;
-    socket = (QTcpSocket*)sender();
+    QTcpSocket *socket = (QTcpSocket*)sender();
     emit signalSendToLog("connection to " + socket->peerAddress().toString());
     qDebug()<<"TcpClient: connection to user"<<socket->peerName();
 }
-
 void TcpClient::slotDisconnected(){
-    QTcpSocket *socket;
-    socket = (QTcpSocket*)sender();
+    QTcpSocket *socket = (QTcpSocket*)sender();
     emit signalSendToLog("disconnect from" + socket->peerAddress().toString());
     qDebug()<<"TcpClient: disconnect from"<<socket->peerName();
 }
 
 void TcpClient::slotError(QAbstractSocket::SocketError){
-    QTcpSocket *socket;
-    socket = (QTcpSocket*)sender();
+    QTcpSocket *socket = (QTcpSocket*)sender();
     emit signalSendToLog("error" + socket->peerAddress().toString()+socket->errorString());
     qDebug()<<"TcpClient: error"<<socket->peerName() + socket->errorString();
 }
-void TcpClient::slotReadMessage()
-{
+void TcpClient::slotReadMessage(){
+    qDebug()<<"Мы в слоте ридамессадж";
     QTcpSocket* socket = (QTcpSocket*)sender();
     QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_4_2);
     for (;;) {
         if (!nextBlockSize) {
             if (socket->bytesAvailable() < sizeof(quint16)) {
@@ -80,11 +97,9 @@ void TcpClient::slotReadMessage()
             break;
         }
         QString str;
-        in >>  str;
+        in >> str;
         nextBlockSize = 0;
-
         qDebug() << "TcpClient: Recieved " + str;
         emit signalSendToGraphics(str);
-        //in.flush();
     }
 }

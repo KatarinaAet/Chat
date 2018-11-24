@@ -7,6 +7,10 @@
 #include <QTime>
 #include <peerlist.h>
 #include <QTextStream>
+#include <QTimer>
+
+
+#include <QTcpServer>
 
 class TcpClient : public QObject
 {
@@ -15,6 +19,8 @@ public:
     explicit TcpClient(PeerList *listOfPeer,QObject *parent = 0);
     PeerList *peerList;
     quint16 nextBlockSize;
+    QTimer* _timer;
+    QTcpServer *tcpServer;
 
 
 signals:
@@ -27,6 +33,8 @@ public slots:
     void slotError(QAbstractSocket::SocketError);
     void slotReadMessage();
 
+
+    void slotNewConnection();
     void slotSendTo(QString nickName, QString groupName, QString messageTo);//мы получили сигнал кому отослать сообщение и само сообщение из г.и.
 
 };

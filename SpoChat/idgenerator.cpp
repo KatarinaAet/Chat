@@ -18,9 +18,7 @@ QString IdGenerator::genId()
             }
         }
     }
-//    uint gen;
-//    for (auto item:_macAddr)
-//        gen += qHash(item);
+
     return QString::number(qHash(addresses));
 }
 

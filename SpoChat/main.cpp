@@ -9,6 +9,7 @@
 #include <tcpserver.h>
 #include <tcpclient.h>
 #include <graphics.h>
+#include <QTimer>
 
 int main(int argc, char *argv[])
 {
@@ -28,26 +29,18 @@ int main(int argc, char *argv[])
      *объявляем сервер,который будет принимать сообщения о присутствии онлайн от пользователей, в том числе и от нас
     */
     UdpServer* serverUdp = new UdpServer(peerList) ;
-    /*!
-     * Объявляем клиент, который будет заниматься отправкой сообщений
-     */
-    TcpServer* serverTcp = new TcpServer(peerList);
-    /*!
-     *Объявляем сервер, который будет заниматься приёмом сообщений от других пользователей
-     */
+
     TcpClient* clientTcp = new TcpClient(peerList);
 
-    //QString messageFromGraph = "Ekaterina@group@Hello!";
 
     QObject::connect(graphics, SIGNAL(signalSendToClient(QString,QString,QString)),clientTcp,SLOT(slotSendTo(QString,QString,QString)));
     QObject::connect(clientTcp, SIGNAL(signalSendToGraphics(QString)),graphics,SLOT(slotReceiveMessage(QString)));
     QObject::connect(clientTcp, SIGNAL(signalSendToLog(QString)),graphics,SLOT(slotLog(QString)));
-    QObject::connect(serverTcp, SIGNAL(signalSendToGraphics(QString)),graphics,SLOT(slotReceiveMessage(QString)));
-    QObject::connect(serverTcp, SIGNAL(signalSendToLog(QString)),graphics,SLOT(slotLog(QString)));
 
 
 
-    //QObject::connect(serverTcp,SIGNAL())
+
+
     graphics->show();
     return a.exec();
 }

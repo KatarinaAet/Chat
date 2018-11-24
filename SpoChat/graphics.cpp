@@ -4,17 +4,11 @@
 Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
 {
     this->peerL = listP;
-    //timer = new QTimer(this);
-        /*!
-         * каждые 5с будет отправляться заданное сообщение
-         */
-    //connect(timer, SIGNAL(timeout()), this, SLOT(sendMes()));
-    //timer->start(5*1000);
 
     mainLay = new QHBoxLayout(this);
-    mesLay = new QVBoxLayout(this);
-    peerLay = new QVBoxLayout(this);
-    buttonLay = new QHBoxLayout(this);
+    mesLay = new QVBoxLayout();
+    peerLay = new QVBoxLayout();
+    buttonLay = new QHBoxLayout();
     peerLay->setAlignment(Qt::AlignTop);
     chatField = new QTextEdit(this);
     chatField->setReadOnly(true);
@@ -45,6 +39,7 @@ Graphics::Graphics(PeerList *listP, QWidget *parent) : QWidget(parent)
 
     connect(peerL, SIGNAL(newPeer(QString)), this, SLOT(slotNewPeer(QString)));
     connect(peerL, SIGNAL(removePeer(QString)), this, SLOT(slotRemovePeer(QString)));
+
     connect(buttonSend, SIGNAL(clicked(bool)), this, SLOT(sendMes()));
     connect(buttonClose, SIGNAL(clicked(bool)), this, SLOT(slotCloseWidgets()));
 
@@ -55,10 +50,8 @@ void Graphics::slotReceiveMessage(QString mes){
     QStringList outMes = mes.split("@");
     if (!chatField->isVisible()){
         slotGiveMesField();
-        chatField->append(outMes[0]+":"+outMes[2]);
     }
-    else
-        chatField->append(outMes[0]+":"+outMes[2]);
+    chatField->append(outMes[0]+":"+outMes[2]);
 }
 
 void Graphics::slotLog(QString log){
@@ -72,9 +65,8 @@ void Graphics::sendMes(){
     if (str.isEmpty())
         return;
     else{
-    QStringList outputMessage = str.split("@");
-    chatField->append(outputMessage[0]+":"+outputMessage[2]);
-    emit signalSendToClient(outputMessage[0],outputMessage[1],outputMessage[2]);
+        QStringList outputMessage = str.split("@");
+        emit signalSendToClient(outputMessage[0],outputMessage[1],outputMessage[2]);
     }
 }
 
@@ -88,8 +80,7 @@ void Graphics::slotNewPeer(const QString &name)
         labelList.append(label);
         peerLay->addWidget(label);
         connect(label, SIGNAL(clicked()), this, SLOT(slotGiveMesField()));
-        qDebug() << "I'M IN SLOT";
-        qDebug() << "Graphics: " << name;
+        qDebug() << "Graphics::label:newPeer " << name;
     }
 
 
@@ -97,11 +88,10 @@ void Graphics::slotNewPeer(const QString &name)
 
 void Graphics::slotRemovePeer(const QString &name)
 {
-    qDebug() << "IN SLOT REMOVE " << name;
     if (!mainLay->isEmpty()){
         for (auto item:labelList){
             if (item->text() == name){
-                qDebug() << "I FOUND IT";
+                qDebug() << "I found for delete"<<name;
                 delete item;
                 labelList.removeOne(item);
                 slotCloseWidgets();

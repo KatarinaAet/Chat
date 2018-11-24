@@ -21,11 +21,12 @@ void PeerList::slotNewPeerTag(PeerTag *clientTag){
             /*!
              * обновляем время у клиента
              */
-            qDebug() << "ClientList:"<<pClient->getIp()<< " No need in append";
+            //qDebug() << "ClientList:"<<pClient->getIp()<< " No need in append";
             return;
         }
      }
     list.append(clientTag);
+
     qDebug() << "PeerList: append successful " << clientTag->getUserName();
     if (!(clientTag->getUserName().isEmpty())){
         emit newPeer(clientTag->getUserName());
